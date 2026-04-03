@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RAMZZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0c1a 0%, #03050a 100%);
+            font-family: 'Orbitron', monospace;
+            color: white;
+            min-height: 100vh;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(78,115,223,0.3);
+            padding: 30px 20px;
+            overflow-y: auto;
+        }
+        .sidebar .logo {
+            font-size: 20px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #fff, #4e73df, #1cc88a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .sidebar .menu {
+            list-style: none;
+        }
+        .sidebar .menu li {
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .sidebar .menu li:hover, .sidebar .menu li.active {
+            background: rgba(78,115,223,0.2);
+            border-left: 3px solid #4e73df;
+        }
+        .sidebar .menu li i {
+            margin-right: 12px;
+            width: 25px;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logout-btn {
+            background: #e74a3b;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(78,115,223,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .card h3 {
+            color: #4e73df;
+            margin-bottom: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(78,115,223,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-card h2 {
+            font-size: 32px;
+            color: #1cc88a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        th {
+            color: #4e73df;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .badge.active { background: #1cc88a; }
+        .badge.expired { background: #e74a3b; }
+        .badge.pending { background: #f6c23e; color: #000; }
+        .badge.success { background: #1cc88a; }
+        button {
+            background: #4e73df;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            margin: 2px;
+        }
+        button.danger { background: #e74a3b; }
+        button.success { background: #1cc88a; }
+        button.warning { background: #f6c23e; color: #000; }
+        input, select {
+            background: #0a0a1a;
+            border: 1px solid #4e73df;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+            margin: 5px 0;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .form-row input, .form-row select {
+            flex: 1;
+            min-width: 150px;
+        }
+        .key-box {
+            background: #0a0a1a;
+            border: 1px solid #1cc88a;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 16px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .wa-contact {
+            background: #25D36620;
+            border: 1px solid #25D366;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .wa-contact a {
+            color: #25D366;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 20px 10px; }
+            .sidebar .logo { font-size: 12px; }
+            .sidebar .menu li span { display: none; }
+            .content { margin-left: 70px; }
+            table { font-size: 10px; }
+            td, th { padding: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">RAMZZ ADMIN</div>
+        <ul class="menu">
+            <li class="active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </li>
+            <li onclick="showSection('keys')">
+                <i class="fas fa-key"></i> <span>Manage Keys</span>
+            </li>
+            <li onclick="showSection('users')">
+                <i class="fas fa-users"></i> <span>Users</span>
+            </li>
+            <li onclick="showSection('orders')">
+                <i class="fas fa-shopping-cart"></i> <span>Orders</span>
+            </li>
+            <li onclick="showSection('manualorder')">
+                <i class="fas fa-hand-holding-usd"></i> <span>Order Manual</span>
+            </li>
+            <li onclick="showSection('create')">
+                <i class="fas fa-plus-circle"></i> <span>Create Key</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1><i class="fas fa-crown"></i> Admin Dashboard</h1>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection">
+            <div class="stats-grid" id="statsContainer">
+                <div class="stat-card"><h2 id="totalUsers">0</h2><p>Total Users</p></div>
+                <div class="stat-card"><h2 id="totalKeys">0</h2><p>Total Keys</p></div>
+                <div class="stat-card"><h2 id="totalOrders">0</h2><p>Total Orders</p></div>
+                <div class="stat-card"><h2 id="totalRevenue">0</h2><p>Revenue</p></div>
+            </div>
+            <div class="card">
+                <h3><i class="fab fa-whatsapp"></i> Kontak Admin</h3>
+                <div class="wa-contact">
+                    <p>Nomor WA: <strong>6283862592489</strong></p>
+                    <a href="https://wa.me/6283862592489" target="_blank"><i class="fab fa-whatsapp"></i> Chat via WhatsApp</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Keys Section -->
+        <div id="keysSection" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-key"></i> Semua Key</h3>
+                <div style="overflow-x: auto;">
+                    <table id="allKeysTable">
+                        <thead><tr><th>Key</th><th>Buyer</th><th>Expired</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="usersSection" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-users"></i> Semua User</h3>
+                <div style="overflow-x: auto;">
+                    <table id="usersTable">
+                        <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="ordersSection" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-shopping-cart"></i> Semua Order</h3>
+                <div style="overflow-x: auto;">
+                    <table id="allOrdersTable">
+                        <thead><tr><th>Order ID</th><th>User</th><th>Paket</th><th>Jumlah</th><th>Status</th><th>Tanggal</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDER MANUAL SECTION -->
+        <div id="manualorderSection" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-hand-holding-usd"></i> 📝 ORDER MANUAL (Jika Payment Error)</h3>
+                <div style="background: #f6c23e20; border: 1px solid #f6c23e; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f6c23e;"></i>
+                    Mode ini digunakan jika sistem pembayaran otomatis sedang error. Admin bisa membuat key secara manual untuk buyer.
+                </div>
+                
+                <div class="form-row">
+                    <input type="text" id="manualBuyerName" placeholder="Nama Buyer" required>
+                    <input type="date" id="manualExpiredDate" required>
+                    <select id="manualPackage">
+                        <option value="Basic">Basic (1 Bulan) - Rp50.000</option>
+                        <option value="Premium">Premium (3 Bulan) - Rp100.000</option>
+                        <option value="Pro">Pro (6 Bulan) - Rp200.000</option>
+                        <option value="Ultimate">Ultimate (12 Bulan) - Rp500.000</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <input type="number" id="manualAmount" placeholder="Nominal (isi 0 untuk auto)">
+                    <input type="text" id="manualEmail" placeholder="Email Buyer (opsional)">
+                </div>
+                
+                <div class="form-row">
+                    <button onclick="createManualOrder()" class="success" style="flex:1;">
+                        <i class="fas fa-key"></i> BUAT KEY & ORDER
+                    </button>
+                    <button onclick="sendManualKeyToWA()" style="background:#25D366; flex:1;">
+                        <i class="fab fa-whatsapp"></i> KIRIM KE WA
+                    </button>
+                </div>
+                
+                <div id="manualOrderResult" style="margin-top: 20px;"></div>
+            </div>
+            
+            <!-- Daftar Order Manual -->
+            <div class="card">
+                <h3><i class="fas fa-list"></i> 📋 DAFTAR ORDER MANUAL</h3>
+                <div style="overflow-x: auto;">
+                    <table id="manualOrdersTable">
+                        <thead>
+                            <tr><th>Tanggal</th><th>Buyer</th><th>Paket</th><th>Nominal</th><th>Key</th><th>Expired</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="manualOrdersList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Key Section -->
+        <div id="createSection" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Buat Key Manual (Tanpa Order)</h3>
+                <div class="form-row">
+                    <input type="text" id="manualBuyer" placeholder="Nama Buyer">
+                    <input type="date" id="manualExpired">
+                    <button onclick="createManualKeyOnly()" class="success">Buat Key</button>
+                </div>
+                <div id="manualKeyResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token || user.role !== 'admin') {
+            window.location.href = '/';
+        }
+
+        let manualOrders = JSON.parse(localStorage.getItem('manualOrders') || '[]');
+
+        function saveManualOrders() {
+            localStorage.setItem('manualOrders', JSON.stringify(manualOrders));
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+
+        function showSection(section) {
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('keysSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
+            document.getElementById('ordersSection').style.display = 'none';
+            document.getElementById('manualorderSection').style.display = 'none';
+            document.getElementById('createSection').style.display = 'none';
+            
+            if (section === 'dashboard') {
+                document.getElementById('dashboardSection').style.display = 'block';
+                loadStats();
+            } else if (section === 'keys') {
+                document.getElementById('keysSection').style.display = 'block';
+                loadAllKeys();
+            } else if (section === 'users') {
+                document.getElementById('usersSection').style.display = 'block';
+                loadAllUsers();
+            } else if (section === 'orders') {
+                document.getElementById('ordersSection').style.display = 'block';
+                loadAllOrders();
+            } else if (section === 'manualorder') {
+                document.getElementById('manualorderSection').style.display = 'block';
+                loadManualOrdersTable();
+            } else if (section === 'create') {
+                document.getElementById('createSection').style.display = 'block';
+            }
+
+            document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
+            event.target.closest('li').classList.add('active');
+        }
+
+        async function loadStats() {
+            const res = await fetch('/api/admin/stats', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('totalUsers').innerText = data.stats.totalUsers;
+                document.getElementById('totalKeys').innerText = data.stats.totalKeys;
+                document.getElementById('totalOrders').innerText = data.stats.totalOrders;
+                document.getElementById('totalRevenue').innerText = 'Rp' + data.stats.totalRevenue.toLocaleString();
+            }
+        }
+
+        async function loadAllKeys() {
+            const res = await fetch('/api/admin/keys', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const tbody = document.querySelector('#allKeysTable tbody');
+            tbody.innerHTML = '';
+            (data.keys || []).forEach(key => {
+                const status = new Date(key.expired) > new Date() ? 'active' : 'expired';
+                const row = `<tr>
+                    <td><code>${key.key}</code></td>
+                    <td>${key.buyer || '-'}</td>
+                    <td>${key.expired}</td>
+                    <td><span class="badge ${status}">${status.toUpperCase()}</span></td>
+                    <td><button class="danger" onclick="deleteKey('${key.key}')">Hapus</button></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function loadAllUsers() {
+            const res = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            (data.users || []).forEach(user => {
+                const row = `<tr>
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role}</td>
+                    <td>${user.role !== 'admin' ? `<button class="danger" onclick="deleteUser(${user.id})">Hapus</button>` : '-'}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function loadAllOrders() {
+            const res = await fetch('/api/admin/orders', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const tbody = document.querySelector('#allOrdersTable tbody');
+            tbody.innerHTML = '';
+            (data.orders || []).forEach(order => {
+                const statusClass = order.status === 'completed' ? 'active' : 'pending';
+                const statusText = order.status === 'completed' ? 'Selesai' : 'Pending';
+                const row = `<tr>
+                    <td><small>${order.order_id}</small></td>
+                    <td>${order.username}</td>
+                    <td>${order.package}</td>
+                    <td>Rp${order.amount.toLocaleString()}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td><small>${new Date(order.created_at).toLocaleString()}</small></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function deleteKey(key) {
+            if (!confirm('Hapus key ini?')) return;
+            const res = await fetch(`/api/admin/delete-key/${key}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Key dihapus');
+                loadAllKeys();
+                loadStats();
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Hapus user ini?')) return;
+            const res = await fetch(`/api/admin/delete-user/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('User dihapus');
+                loadAllUsers();
+                loadStats();
+            }
+        }
+
+        // ========== ORDER MANUAL ==========
+        function loadManualOrdersTable() {
+            const tbody = document.getElementById('manualOrdersList');
+            tbody.innerHTML = '';
+            if (manualOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Belum ada order manual</td></tr>';
+                return;
+            }
+            [...manualOrders].reverse().forEach((order) => {
+                const statusClass = order.sentWA ? 'success' : 'warning';
+                const statusText = order.sentWA ? 'Terkirim' : 'Belum Kirim';
+                const row = `<tr>
+                    <td><small>${order.date}</small></td>
+                    <td>${order.buyer}</td>
+                    <td>${order.package}</td>
+                    <td>Rp${order.amount.toLocaleString()}</td>
+                    <td><code style="font-size:11px;">${order.key}</code></td>
+                    <td>${order.expired}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button onclick="copyKey('${order.key}')" style="background:#4e73df;"><i class="fas fa-copy"></i></button>
+                        <button onclick="sendKeyWA('${order.key}', '${order.buyer}', '${order.expired}')" style="background:#25D366;"><i class="fab fa-whatsapp"></i></button>
+                        <button onclick="deleteManualOrder('${order.key}')" class="danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function createManualOrder() {
+            const buyer = document.getElementById('manualBuyerName').value;
+            const expired = document.getElementById('manualExpiredDate').value;
+            const packageName = document.getElementById('manualPackage').value;
+            let amount = parseInt(document.getElementById('manualAmount').value);
+            const email = document.getElementById('manualEmail').value;
+            
+            if (!buyer || !expired) {
+                alert('Isi Nama Buyer dan Tanggal Expired!');
+                return;
+            }
+            
+            const packagePrices = { 'Basic': 50000, 'Premium': 100000, 'Pro': 200000, 'Ultimate': 500000 };
+            if (!amount || amount === 0 || isNaN(amount)) {
+                amount = packagePrices[packageName];
+            }
+            
+            const newKey = 'KEY-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            const newOrder = {
+                key: newKey,
+                buyer: buyer,
+                expired: expired,
+                package: packageName,
+                amount: amount,
+                email: email,
+                date: new Date().toLocaleString(),
+                sentWA: false
+            };
+            manualOrders.push(newOrder);
+            saveManualOrders();
+            
+            await fetch('/api/admin/create-key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ buyer, user_id: null, expired })
+            });
+            
+            document.getElementById('manualOrderResult').innerHTML = `
+                <div style="background:#1cc88a20; border:1px solid #1cc88a; border-radius:10px; padding:15px;">
+                    ✅ <strong>KEY BERHASIL DIBUAT!</strong><br>
+                    Key: <code style="font-size:16px;">${newKey}</code><br>
+                    Buyer: ${buyer}<br>
+                    Expired: ${expired}<br>
+                    <button onclick="copyKey('${newKey}')" style="margin-top:10px;">📋 Copy Key</button>
+                    <button onclick="sendKeyWA('${newKey}', '${buyer}', '${expired}')" style="margin-top:10px; background:#25D366;">📱 Kirim ke WA</button>
+                </div>
+            `;
+            
+            document.getElementById('manualBuyerName').value = '';
+            document.getElementById('manualEmail').value = '';
+            document.getElementById('manualAmount').value = '';
+            
+            loadManualOrdersTable();
+            loadAllKeys();
+            loadStats();
+        }
+
+        function copyKey(key) {
+            navigator.clipboard.writeText(key);
+            alert('✅ Key disalin: ' + key);
+        }
+
+        function sendKeyWA(key, buyer, expired) {
+            const message = `*RAMZZ HOSTING PREMIUM*\n\nHalo *${buyer}*,\n\nTerima kasih telah membeli panel premium. Berikut key akses Anda:\n\n🔑 *KEY:* ${key}\n📅 *Expired:* ${expired}\n\nAkses panel di: https://panel.ramzz.com\n\nTerima kasih telah menggunakan layanan RAMZZ!`;
+            const waUrl = `https://wa.me/6283862592489?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+            
+            const order = manualOrders.find(o => o.key === key);
+            if (order) {
+                order.sentWA = true;
+                saveManualOrders();
+                loadManualOrdersTable();
+            }
+        }
+
+        function sendManualKeyToWA() {
+            const keyBox = document.querySelector('#manualOrderResult code');
+            if (!keyBox) {
+                alert('Buat key dulu!');
+                return;
+            }
+            const key = keyBox.innerText;
+            const buyer = document.getElementById('manualBuyerName').value;
+            const expired = document.getElementById('manualExpiredDate').value;
+            if (key && buyer) {
+                sendKeyWA(key, buyer, expired);
+            } else {
+                alert('Isi data buyer dan buat key terlebih dahulu!');
+            }
+        }
+
+        function deleteManualOrder(key) {
+            if (!confirm('Hapus order manual ini?')) return;
+            manualOrders = manualOrders.filter(o => o.key !== key);
+            saveManualOrders();
+            loadManualOrdersTable();
+        }
+
+        async function createManualKeyOnly() {
+            const buyer = document.getElementById('manualBuyer').value;
+            const expired = document.getElementById('manualExpired').value;
+            if (!buyer || !expired) {
+                alert('Isi semua field');
+                return;
+            }
+            const res = await fetch('/api/admin/create-key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ buyer, user_id: null, expired })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('manualKeyResult').innerHTML = `<div class="key-box">✅ Key baru: ${data.key}</div>`;
+                loadAllKeys();
+                loadStats();
+            } else {
+                alert('Gagal membuat key');
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>
